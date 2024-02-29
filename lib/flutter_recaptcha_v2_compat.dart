@@ -15,21 +15,28 @@ class RecaptchaV2 extends StatefulWidget {
   final ValueChanged<bool>? onVerifiedSuccessfully;
   final ValueChanged<String>? onVerifiedError;
 
+  final EdgeInsetsGeometry? padding;
+
   RecaptchaV2({
     required this.apiKey,
     required this.apiSecret,
     required this.controller,
     this.onVerifiedSuccessfully,
     this.onVerifiedError,
+    this.padding,
   });
 
   @override
   State<StatefulWidget> createState() => _RecaptchaV2State();
 }
 
-class _RecaptchaV2State extends State<RecaptchaV2> {
+class _RecaptchaV2State extends State<RecaptchaV2>
+    with TickerProviderStateMixin {
   late RecaptchaV2Controller controller;
   late WebViewController webViewController;
+
+  bool isShowing = false;
+  bool isVerified = false;
 
   void verifyToken(String token) async {
     String url = "https://www.google.com/recaptcha/api/siteverify";
@@ -45,34 +52,45 @@ class _RecaptchaV2State extends State<RecaptchaV2> {
       dynamic json = jsonDecode(response.body);
       if (json['success']) {
         widget.onVerifiedSuccessfully?.call(true);
+        isVerified = true;
       } else {
         widget.onVerifiedSuccessfully?.call(false);
         widget.onVerifiedError?.call(json['error-codes'].toString());
+        isVerified = false;
       }
     }
-
     // hide captcha
-    controller.hide();
+    _hide();
   }
 
-  void onListen() {
-    if (controller.visible) {
+  void _show() {
+    setState(() {
+      isShowing = true;
+    });
+  }
+
+  void _hide() {
+    setState(() {
+      isShowing = false;
+    });
+  }
+
+  void _reload() {
+    if (!isVerified) {
       webViewController.clearCache();
       webViewController.reload();
+      _hide();
     }
-    setState(() {
-      controller.visible;
-    });
   }
 
   @override
   void initState() {
     controller = widget.controller;
-    controller.addListener(onListen);
+    controller.onReload = _reload;
     super.initState();
     webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.white)
+      ..setBackgroundColor(Colors.transparent)
       ..addJavaScriptChannel(
         'RecaptchaFlutterChannel',
         onMessageReceived: (JavaScriptMessage receiver) {
@@ -89,84 +107,55 @@ class _RecaptchaV2State extends State<RecaptchaV2> {
   @override
   void didUpdateWidget(RecaptchaV2 oldWidget) {
     if (widget.controller != oldWidget.controller) {
-      oldWidget.controller.removeListener(onListen);
       controller = widget.controller;
-      controller.removeListener(onListen);
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    controller.removeListener(onListen);
+    controller.onReload = null;
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return controller.visible
-        ? Stack(
-            children: <Widget>[
-              WebViewWidget(controller: webViewController),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 60,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Expanded(
-                        child: ElevatedButton(
-                          child: Text("CANCEL RECAPTCHA"),
-                          onPressed: () {
-                            controller.hide();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          )
-        : Container();
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: 300),
+      child: Container(
+        padding: widget.padding,
+        height: isShowing ? 500 : 90,
+        child: Stack(
+          children: [
+            WebViewWidget(controller: webViewController),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTapUp: (_) {
+                if (!isVerified) _show();
+              },
+              child: Container(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class RecaptchaV2Controller extends ChangeNotifier {
   bool isDisposed = false;
-  List<VoidCallback> _listeners = [];
+  VoidCallback? onReload;
 
-  bool _visible = false;
-  bool get visible => _visible;
-
-  void show() {
-    _visible = true;
-    if (!isDisposed) notifyListeners();
-  }
-
-  void hide() {
-    _visible = false;
-    if (!isDisposed) notifyListeners();
+  void reload() {
+    if (!isDisposed) onReload?.call();
   }
 
   @override
   void dispose() {
-    _listeners = [];
     isDisposed = true;
+    onReload = null;
     super.dispose();
-  }
-
-  @override
-  void addListener(listener) {
-    _listeners.add(listener);
-    super.addListener(listener);
-  }
-
-  @override
-  void removeListener(listener) {
-    _listeners.remove(listener);
-    super.removeListener(listener);
   }
 }

@@ -32,6 +32,12 @@ class _MyHomePageState extends State<MyHomePage> {
   RecaptchaV2Controller recaptchaV2Controller = RecaptchaV2Controller();
 
   @override
+  void dispose() {
+    recaptchaV2Controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -40,35 +46,37 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Stack(
         children: <Widget>[
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  child: Text("SHOW ReCAPTCHA"),
-                  onPressed: () {
-                    recaptchaV2Controller.show();
-                  },
-                ),
-                Text(verifyResult),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RecaptchaV2(
+                    apiKey: "6LfXp1UpAAAAAEku9BSeBt6JJxXrlvtYjh--X4D7",
+                    apiSecret: "6LfXp1UpAAAAAIFVynIPkooVWZi5qN8u16SYJTVt",
+                    controller: recaptchaV2Controller,
+                    padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
+                    onVerifiedError: (err) {
+                      print(err);
+                    },
+                    onVerifiedSuccessfully: (success) {
+                      setState(() {
+                        if (success) {
+                          verifyResult = "You've been verified successfully.";
+                        } else {
+                          verifyResult = "Failed to verify.";
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    child: Text("Reload ReCAPTCHA"),
+                    onPressed: () => recaptchaV2Controller.reload(),
+                  ),
+                  Text(verifyResult),
+                ],
+              ),
             ),
-          ),
-          RecaptchaV2(
-            apiKey: "6LfXp1UpAAAAAEku9BSeBt6JJxXrlvtYjh--X4D7",
-            apiSecret: "6LfXp1UpAAAAAIFVynIPkooVWZi5qN8u16SYJTVt",
-            controller: recaptchaV2Controller,
-            onVerifiedError: (err) {
-              print(err);
-            },
-            onVerifiedSuccessfully: (success) {
-              setState(() {
-                if (success) {
-                  verifyResult = "You've been verified successfully.";
-                } else {
-                  verifyResult = "Failed to verify.";
-                }
-              });
-            },
           ),
         ],
       ),
