@@ -1,6 +1,6 @@
 name: flutter_recaptcha_v2_compat
 description: Flutter plugin for Google ReCaptcha V2 – Simplify captcha integration in your Flutter app effortlessly.
-version: 1.0.2+2
+version: 1.0.3+3
 homepage: https://github.com/corgivn/flutter_recaptcha_v2/
 
 environment:

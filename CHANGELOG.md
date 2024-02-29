@@ -1,3 +1,8 @@
+## [1.0.3+3] - 2024-02-29
+
+### Fixed 
+- The image popup is cropped.
+
 ## [1.0.2+2] - 2024-01-22
 
 ### Added 
