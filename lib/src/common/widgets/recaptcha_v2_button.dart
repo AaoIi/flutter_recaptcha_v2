@@ -1,20 +1,27 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_recaptcha_v2_compat/generated/colors.gen.dart';
-import 'package:flutter_recaptcha_v2_compat/generated/fonts.gen.dart';
 
 import '../../../generated/assets.gen.dart';
+import '../../../generated/colors.gen.dart';
+import '../../../generated/fonts.gen.dart';
 import '../../../src/common/extensions/build_context_x.dart';
+import 'bottom_sheet/bottom_sheet_popup.dart';
 
 class RecaptchaV2Button extends StatefulWidget {
   final bool? isErrorShowing;
-  final bool? isVerified;
   final Function(bool verified) onVerified;
+
+  final String apiKey;
+  final String apiSecret;
+  final String pluginURL;
 
   const RecaptchaV2Button({
     super.key,
     this.isErrorShowing = false,
-    this.isVerified = false,
     required this.onVerified,
+    required this.apiKey,
+    required this.apiSecret,
+    required this.pluginURL,
   });
 
   @override
@@ -22,6 +29,22 @@ class RecaptchaV2Button extends StatefulWidget {
 }
 
 class _RecaptchaV2ButtonState extends State<RecaptchaV2Button> {
+  bool isVerified = false;
+
+  _onUpdateVerifyState(bool isSuccess) {
+    setState(() {
+      isVerified = isSuccess;
+      widget.onVerified(isVerified);
+      if (kDebugMode) {
+        if (isVerified) {
+          print("You've been verified successfully.");
+        } else {
+          print("Failed to verify.");
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,8 +72,19 @@ class _RecaptchaV2ButtonState extends State<RecaptchaV2Button> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: () {},
-                      icon: RCAssets.icons.icCbEmpty.svg(),
+                      onPressed: isVerified
+                          ? null
+                          : () => BottomSheetPopup.showRecaptchaV2(
+                                context,
+                                widget.apiKey,
+                                widget.apiSecret,
+                                widget.pluginURL,
+                                onVerify: _onUpdateVerifyState,
+                                onCanceled: () {},
+                              ),
+                      icon: isVerified
+                          ? RCAssets.icons.icTickGreen.svg()
+                          : RCAssets.icons.icCbEmpty.svg(),
                     ),
                     Text(
                       "I'm not a robot",
@@ -71,7 +105,7 @@ class _RecaptchaV2ButtonState extends State<RecaptchaV2Button> {
             ),
           ),
           SizedBox(height: 4),
-          widget.isErrorShowing == true && widget.isVerified == false
+          widget.isErrorShowing == true && isVerified == false
               ? Text(
                   'Please verify that you are not a robot.',
                   style: context.textTheme.regular.copyWith(
