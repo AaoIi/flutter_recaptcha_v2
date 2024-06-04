@@ -1,3 +1,7 @@
+## [1.0.4] - 2024-06-04
+
+### Feat
+- added button ReCaptcha-v2.
 ## [1.0.3+3] - 2024-02-29
 
 ### Fixed 
