@@ -9,7 +9,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 class RecaptchaV2 extends StatefulWidget {
   final String apiKey;
   final String apiSecret;
-  final String pluginURL = "https://recaptcha-flutter-plugin.firebaseapp.com/";
+  final String pluginURL;
   final RecaptchaV2Controller controller;
 
   final ValueChanged<bool>? onVerifiedSuccessfully;
@@ -21,6 +21,7 @@ class RecaptchaV2 extends StatefulWidget {
     required this.apiKey,
     required this.apiSecret,
     required this.controller,
+    required this.pluginURL,
     this.onVerifiedSuccessfully,
     this.onVerifiedError,
     this.padding,
@@ -121,24 +122,21 @@ class _RecaptchaV2State extends State<RecaptchaV2>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: Duration(milliseconds: 300),
-      child: Container(
-        padding: widget.padding,
-        height: isShowing ? 500 : 90,
-        child: Stack(
-          children: [
-            WebViewWidget(controller: webViewController),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTapUp: (_) {
-                if (!isVerified) _show();
-              },
-              child: Container(),
-            ),
-          ],
-        ),
+    return Container(
+      padding: widget.padding,
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
+      child: Stack(
+        children: [
+          WebViewWidget(controller: webViewController),
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTapUp: (_) {
+              if (!isVerified) _show();
+            },
+            child: Container(),
+          ),
+        ],
       ),
     );
   }

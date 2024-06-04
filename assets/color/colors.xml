@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="primary">#FD7735</color>
+    <color name="primary_light">#32FD7735</color>
+    <color name="material_primary" type="material">#FF5722</color>
+    <color name="background">#FFFFFF</color>
+    <color name="background_secondary">#F6F6F6</color>
+    <color name="red">#DD4B39</color>
+
+    <!-- Text-->
+    <color name="Text/Primary">#1D1D1D</color>
+    <color name="Text/Secondary">#858585</color>
+    <color name="text/Title">#1D1D1D</color>
+    <color name="Text/SubTitle">#4A4A4A</color>
+    <color name="Text/Tag">#484848</color>
+    <color name="Text/Approve">#479487</color>
+    <color name="Text/Error">#BE1414</color>
+    <color name="Text/Hint">#C6C6CB</color>
+    <color name="Text/Cancel">#FF9900</color>
+    <color name="Text/Disable">#C1C1C1</color>
+    <color name="Text/DisableLight">#C4C4C4</color>
+    <color name="Text/LabelDisable">#C3CAD0</color>
+    <color name="Text/AppBarAction">#292929</color>
+
+    <!-- Button-->
+    <color name="Button/Background">#F9F9F9</color>
+
+    <!-- Others   -->
+    <color name="text_blue">#3A7CC9</color>
+    <color name="light_gray">#E1E1E1</color>
+    <color name="charcoal_gray">#4A4A4A</color>
+    <color name="darkBlue">#4F5459</color>
+    <color name="border_grey">#D3D3D3</color>
+
+</resources>
