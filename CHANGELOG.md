@@ -1,3 +1,7 @@
+## [1.0.5] - 2024-07-03
+
+### Fixed
+- Android: Can't tap on checkbox to verify.
 ## [1.0.4] - 2024-06-04
 
 ### Feat
