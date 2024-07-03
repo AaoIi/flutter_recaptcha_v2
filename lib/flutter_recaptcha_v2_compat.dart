@@ -36,9 +36,6 @@ class _RecaptchaV2State extends State<RecaptchaV2>
   late RecaptchaV2Controller controller;
   late WebViewController webViewController;
 
-  bool isShowing = false;
-  bool isVerified = false;
-
   void verifyToken(String token) async {
     String url = "https://www.google.com/recaptcha/api/siteverify";
     http.Response response = await http.post(Uri.parse(url), body: {
@@ -53,35 +50,16 @@ class _RecaptchaV2State extends State<RecaptchaV2>
       dynamic json = jsonDecode(response.body);
       if (json['success']) {
         widget.onVerifiedSuccessfully?.call(true);
-        isVerified = true;
       } else {
         widget.onVerifiedSuccessfully?.call(false);
         widget.onVerifiedError?.call(json['error-codes'].toString());
-        isVerified = false;
       }
     }
-    // hide captcha
-    _hide();
-  }
-
-  void _show() {
-    setState(() {
-      isShowing = true;
-    });
-  }
-
-  void _hide() {
-    setState(() {
-      isShowing = false;
-    });
   }
 
   void _reload() {
-    if (!isVerified) {
-      webViewController.clearCache();
-      webViewController.reload();
-      _hide();
-    }
+    webViewController.clearCache();
+    webViewController.reload();
   }
 
   @override
@@ -126,18 +104,7 @@ class _RecaptchaV2State extends State<RecaptchaV2>
       padding: widget.padding,
       constraints:
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
-      child: Stack(
-        children: [
-          WebViewWidget(controller: webViewController),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTapUp: (_) {
-              if (!isVerified) _show();
-            },
-            child: Container(),
-          ),
-        ],
-      ),
+      child: WebViewWidget(controller: webViewController),
     );
   }
 }
