@@ -11,9 +11,11 @@ class RecaptchaV2 extends StatefulWidget {
   final String apiSecret;
   final String pluginURL;
   final RecaptchaV2Controller controller;
+  final bool autoVerify;
 
   final ValueChanged<bool>? onVerifiedSuccessfully;
   final ValueChanged<String>? onVerifiedError;
+  final ValueChanged<String>? onManualVerification;
 
   final EdgeInsetsGeometry? padding;
 
@@ -24,7 +26,7 @@ class RecaptchaV2 extends StatefulWidget {
     required this.pluginURL,
     this.onVerifiedSuccessfully,
     this.onVerifiedError,
-    this.padding,
+    this.padding, this.onManualVerification, required this.autoVerify,
   });
 
   @override
@@ -77,6 +79,8 @@ class _RecaptchaV2State extends State<RecaptchaV2>
           if (_token.contains("verify")) {
             _token = _token.substring(7);
           }
+          if (widget.autoVerify) verifyToken(_token);
+          widget.onManualVerification!(_token);
           verifyToken(_token);
         },
       )
